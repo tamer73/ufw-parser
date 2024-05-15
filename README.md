@@ -1,5 +1,6 @@
 # ufw-parser
-Parse UFW logs and Sort them by variable counts
+Parse UFW logs 
+Group and Sort them by variable counts with parameter
 
 You can pass the min counts for display by ```ufw-parser.sh 30``` or any other digit
 
