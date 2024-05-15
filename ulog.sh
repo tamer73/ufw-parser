@@ -26,7 +26,7 @@ END {
     for (i = 1; i <= num_keys; i++) {
         split(sorted_keys[i], parts, SUBSEP)  # parts[1] = count, parts[2] = key
         if (parts[1] > threshold) {
-            printf "Group: %s, Count: \033[1;31m%d\033[0m, Entry: %s\n", parts[2], parts[1], sort_arr[sorted_keys[i]]
+            printf "Group: %s, Count: \033[1;31m%d\033[0m, Entry: %s\n", parts[2],  parts[1], sort_arr[sorted_keys[i]]
         }
     }
 }' /var/log/ufw.log
