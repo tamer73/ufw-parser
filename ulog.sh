@@ -1,32 +1,35 @@
 #!/bin/bash
 
-# Check if the user has provided a threshold, otherwise set a default
-threshold=${1:-1}
+# Usage: ./ulogs.sh [tally]
 
-# The awk script processing the log with the threshold variable
-awk -v threshold="$threshold" '
+# Default tally is 1, or use the provided command line argument
+tally=${1:-1}
+
+# awk magic
+awk -v tally="$tally" '
 $7 ~ /UFW/ && $20 ~ /TCP/ {
-    # Store the first entry if not already stored, except $1 and $2
+    # Store the first $22 if not already stored
     if (!data[$12]) {
-        data[$12] = $12 "\t" $22  # Only store $12 and $22 initially
+        data[$12] = $22  # Store only $22
     }
     # Always update $1 and $2 for the last entry
-    last[$12] = $1 "\t" $2
+    last[$12] = $1 " " $2
     # Increment count for each group
     count[$12]++
 }
 END {
     # Transfer counts and data to an array for sorting
     for (key in count) {
-        sort_arr[count[key], key] = last[key] "\t" data[key]  # Combine last $1, $2 with the first $12, $22
+        # Combine count as the primary key for sorting with the group key
+        sort_arr[sprintf("%09d %s", count[key], key)] = last[key] " " data[key]
     }
-    # Sort by count in descending order using numeric comparison
+    # Use numeric sort in descending order by count
     num_keys = asorti(sort_arr, sorted_keys, "@ind_num_desc")
-    # Print sorted groups with counts greater than the threshold
     for (i = 1; i <= num_keys; i++) {
-        split(sorted_keys[i], parts, SUBSEP)  # parts[1] = count, parts[2] = key
-        if (parts[1] > threshold) {
-            printf "Group: %s, Count: \033[1;31m%d\033[0m, Entry: %s\n", parts[2],  parts[1], sort_arr[sorted_keys[i]]
+        # Extract count and key from sorted array index
+        split(sorted_keys[i], parts, / /, seps)
+        if (parts[1] > tally) {
+            printf "Group: %s, Count: \033[1;31m%d\033[0m, Entry: %s\n", parts[2], parts[1], sort_arr[sorted_keys[i]]
         }
     }
 }' /var/log/ufw.log
