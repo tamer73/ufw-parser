@@ -54,7 +54,7 @@ END {
             group_key = substr(sorted_keys[i], 11)
             blocked_label = (blocked[group_key] ? " \033[1;34malready blocked\033[0m" : "")
             split(sort_arr[sorted_keys[i]], entry, "\t")
-            printf "%-20s %-10d %-20s %-10s %s\n", group_key, count_value, entry[1], entry[2], blocked_label
+            printf "%-20s \033[1;31m%-10d\033[0m %-20s %-10s %s\n", group_key, count_value, entry[1], entry[2], blocked_label
         }
     }
 }' /var/log/ufw.log
