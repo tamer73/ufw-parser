@@ -3,7 +3,7 @@
 # Usage: ./ulogs.sh [tally]
 
 # Default tally is 10, or use the provided command line argument
-tally=${1:-1}
+tally=${1:-10}
 
 # awk magic
 awk -v tally="$tally" '
