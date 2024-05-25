@@ -2,7 +2,7 @@
 Parse UFW logs 
 Group and Sort them by variable counts with parameter
 
-You can pass the min count matches for display by ```ufw-parser.sh 30``` or any other digit - default will be top ten counts
+You can pass the min count matches for display by ```ufw-parser.sh 30``` or any other digit - **default will be top ten counts**
 
 I prefer to use it inside my .bashrc as ```function ulog() {...} ```
 Now only ```ulog 30``` needed 
