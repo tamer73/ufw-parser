@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 
 # This is a shell script named `ulog4.sh`
 # Usage: ./ulog4.sh [tally] [sort_by_date]
