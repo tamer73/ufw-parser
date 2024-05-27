@@ -1,7 +1,7 @@
 #!/usr/bin/sudo bash
 
-# This is a shell script named `ulog4.sh`
-# Usage: ./ulog4.sh [tally] [sort_by_date]
+# This is a shell script named `process_logs.sh`
+# Usage: ./process_logs.sh [tally] [sort_by_date]
 
 # Default tally is 1, or use the provided command line argument
 tally=${1:-1}
@@ -12,13 +12,6 @@ blocked_ips=$(ufw status | awk '/DENY/ {print $3}')
 
 # Properly formatted awk script within a shell script
 awk -v tally="$tally" -v blocked_ips="$blocked_ips" -v sort_by_date="$sort_by_date" '
-function pad_zero(num) {
-    return (num < 10 ? "0" num : num)
-}
-function format_date_time(date, time) {
-    split(time, tarr, ":")
-    return date " " pad_zero(tarr[1]) ":" pad_zero(tarr[2]) ":" pad_zero(tarr[3])
-}
 BEGIN {
     # Split the blocked_ips string into an array
     split(blocked_ips, blocked_array)
@@ -26,40 +19,30 @@ BEGIN {
         blocked[blocked_array[i]] = 1
     }
     # Print the table header to a temporary file
-    printf "%-18s %-3s %-22s %-8s %-13s\n", "Group", "Cnt", "Date_Time", "Port", "Status" > "/tmp/ip_list_unformatted.txt"
-    printf "%-18s %-3s %-22s %-8s %-13s\n", "-----", "---", "---------", "----", "------" >> "/tmp/ip_list_unformatted.txt"
+    printf "%-40s %-3s %-22s %-8s %-13s\n", "Group", "Cnt", "Date_Time", "Port", "Status" > "/tmp/ip_list_unformatted.txt"
+    printf "%-40s %-3s %-22s %-8s %-13s\n", "-----", "---", "---------", "----", "------" >> "/tmp/ip_list_unformatted.txt"
 }
 {
     # Extract the IP address from the SRC= field
-    match($0, /SRC=([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)/, arr)
-    ip = arr[1]
-
-    # Extract the port number from the DPT= field
-    match($0, /DPT=([0-9]+)/, arr)
-    port = arr[1]
-
-    # Extract the date and time
-    split($0, log_parts, " ")
-    date = log_parts[1] " " log_parts[2]
-    time = log_parts[3]
-
-    # Ensure time is correctly formatted
-    if (match(time, /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/)) {
-        formatted_time = time
+    if (match($0, /SRC=([0-9a-fA-F:.]+)/, arr)) {
+        ip = arr[1]
     } else {
-        split(time, time_parts, ":")
-        formatted_time = pad_zero(time_parts[1]) ":" pad_zero(time_parts[2]) ":" pad_zero(time_parts[3])
+        next
     }
 
-    # Format the date and time for sorting
-    date_time = date " " formatted_time
+    # Extract the port number from the DPT= field
+    if (match($0, /DPT=([0-9]+)/, arr)) {
+        port = arr[1]
+    } else {
+        port = "-"
+    }
 
     # Store the first port if not already stored
     if (!data[ip]) {
         data[ip] = port  # Store only the port number
     }
-    # Update the last entry (Date and Time)
-    last[ip] = date_time
+    # Always update $1, $2, and $3 for the last entry (Date and Time)
+    last[ip] = $1 " " $2 " " $3
     # Increment count for each group
     count[ip]++
 }
@@ -73,7 +56,7 @@ END {
         }
     }
     # Sort the data
-    n = asorti(data_array, sorted_data, (sort_by_date == 1 ? "@ind_str_desc" : "@ind_num_desc"))
+    n = asorti(data_array, sorted_data, (sort_by_date == 1 ? "@val_str_desc" : "@ind_num_desc"))
     for (i = 1; i <= n; i++) {
         split(sorted_data[i], arr, SUBSEP)
         key = arr[2]
@@ -83,7 +66,7 @@ END {
         if (!blocked[key]) {
             new_ips = new_ips key "\n"
         }
-        printf "%-18s %03d %-22s %-8s %-13s\n", key, entry[3], entry[1], entry[2], blocked_label >> "/tmp/ip_list_unformatted.txt"
+        printf "%-40s %03d %-22s %-8s %-13s\n", key, entry[3], entry[1], entry[2], blocked_label >> "/tmp/ip_list_unformatted.txt"
     }
     # Write new IPs to the temporary file without printing them
     if (new_ips) {
@@ -111,7 +94,7 @@ done < /tmp/ip_list.txt
 
 # Use dialog to present the options with reduced width
 dialog --title "Select IPs to Block" \
-       --checklist "Select the IPs you want to block:\n\n" 20 80 15 \
+       --checklist "Select the IPs you want to block:\n\n" 20 100 15 \
        "${dialog_options[@]}" 2> /tmp/selected_ips.txt
 
 response=$?
