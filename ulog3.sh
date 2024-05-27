@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 
 # This is a shell script named `process_logs.sh`
 # Usage: ./process_logs.sh [tally]
