@@ -60,3 +60,6 @@ The following IPs are not blocked yet and will be blocked:
 45.205.2.16
 Do you want to block these IPs? (y/n):
 ```
+#ulog4 now selectable IP Blcking based on Dialog
+![image](https://github.com/tamer73/ufw-parser/assets/14232077/81bbb452-c5db-4d65-8832-0e6fb704b3d2)
+
