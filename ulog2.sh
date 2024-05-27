@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 
 # Usage: ./ulog2.sh [min count of matches]
 
