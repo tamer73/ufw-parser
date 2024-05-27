@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/sudo bash
 
 # Usage: ./ulogs.sh [tally]
 
