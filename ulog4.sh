@@ -1,6 +1,6 @@
 #!/usr/bin/sudo bash
 
-# This is a shell script named `process_logs.sh`
+# This is a shell script named `ulog4.sh`
 # Usage: ./process_logs.sh [tally] [sort_by_date]
 
 # Default tally is 1, or use the provided command line argument
